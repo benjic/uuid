@@ -8,5 +8,4 @@ script:
   # Merge coverage reports
   - gover . coverprofile.txt
 after_success:
-  # Send coverage reports to Codecov
-  - bash < (curl -s https://codecov.io/bash) -f coverprofile.txt
+  - bash <(curl -s https://codecov.io/bash)
