@@ -1,11 +1,9 @@
 language: go
-before_install:
-  - go get github.com/modocache/gover
+go:
+  - 1.4
+  - 1.5
+  - 1.6
 script:
-  - go test -v ./...
-  # Collect coverage reports
-  - go list -f '{{if len .TestGoFiles}}"go test -coverprofile={{.Dir}}/.coverprofile {{.ImportPath}}"{{end}}' ./... | xargs -i sh -c {}
-  # Merge coverage reports
-  - gover . coverprofile.txt
+  - go test -coverprofile=coverage.txt -covermode=atomic
 after_success:
   - bash <(curl -s https://codecov.io/bash)
