@@ -59,3 +59,30 @@ func TestUUIDParse(t *testing.T) {
 		}
 	}
 }
+
+func TestUUIDVersion(t *testing.T) {
+	cases := []struct {
+		uuid    string
+		version Version
+	}{
+		{"342ce962-286b-11e6-b67b-9e71128cae77", 1},
+		{"a1322ba2-939d-2c50-91f9-7f1b6465941f", 2},
+		{"d0021c5b-595b-362b-ac92-0ac7f3faf74f", 3},
+		{"75c02ed9-f82f-4c68-91a9-9b0b6c2dd698", 4},
+		{"031ea7d5-c569-5d37-b6c2-9d1a58a96316", 5},
+	}
+
+	for _, c := range cases {
+		uuid, err := Parse(c.uuid)
+
+		if err != nil {
+			t.Errorf("Did not expect error %s when parsing test case UUID", err)
+		}
+
+		got := uuid.Version()
+
+		if got != c.version {
+			t.Errorf("Expected %s to have version %d; Got %d", c.uuid, c.version, got)
+		}
+	}
+}

@@ -28,3 +28,6 @@ func Parse(id string) (uuid UUID, err error) {
 
 	return uuid, err
 }
+
+// Version of the UUID
+func (id UUID) Version() Version { return Version((id[6] & 0xF0) >> 4) }
