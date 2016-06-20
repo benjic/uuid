@@ -44,11 +44,11 @@ func TestV1ReaderRead(t *testing.T) {
 	count, err := testV1Reader.Read(output)
 
 	if err != nil {
-		t.Error("Did not expect error %s", err)
+		t.Errorf("Did not expect error %s", err)
 	}
 
 	if count != 16 {
-		t.Error("Read did not encounter the correct number of bytes; Wanted 16 got %d", count)
+		t.Errorf("Read did not encounter the correct number of bytes; Wanted 16 got %d", count)
 	}
 
 	cases := []struct {
@@ -157,7 +157,7 @@ func TestNodeValue(t *testing.T) {
 			defaultNode,
 			nil,
 			[]byte{1, 1, 1, 1, 1, 1},
-			[]net.Interface{net.Interface{}},
+			[]net.Interface{{}},
 			"Expected default value %+v when interfaces have no HardwareAddr; got %+v",
 		},
 		{
@@ -165,7 +165,7 @@ func TestNodeValue(t *testing.T) {
 			nil,
 			[]byte{2, 2, 2, 2, 2, 2},
 			[]net.Interface{
-				net.Interface{HardwareAddr: []byte{2, 2, 2, 2, 2, 2}},
+				{HardwareAddr: []byte{2, 2, 2, 2, 2, 2}},
 			},
 			"Expected hardware interface value %+v, got %+v",
 		},
@@ -174,8 +174,8 @@ func TestNodeValue(t *testing.T) {
 			nil,
 			[]byte{2, 2, 2, 2, 2, 2},
 			[]net.Interface{
-				net.Interface{HardwareAddr: []byte{2, 2, 2, 2, 2, 2}},
-				net.Interface{HardwareAddr: []byte{3, 3, 3, 3, 3, 3}},
+				{HardwareAddr: []byte{2, 2, 2, 2, 2, 2}},
+				{HardwareAddr: []byte{3, 3, 3, 3, 3, 3}},
 			},
 			"Expected first hardware interface value %+v, got %+v",
 		},
