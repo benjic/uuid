@@ -1,22 +1,26 @@
 package uuid
 
-import "testing"
+import (
+	"errors"
+	"net"
+	"testing"
+)
 
-type testWriter struct{ wasWritten bool }
+type testReader struct{ wasWritten bool }
 
-func (w *testWriter) Write(buf []byte) (int, error) {
+func (w *testReader) Read(buf []byte) (int, error) {
 	w.wasWritten = true
 
 	return 16, nil
 }
 
-type byteWriter struct {
+type byteReader struct {
 	index int
 	done  bool
 	count uint8
 }
 
-func (w *byteWriter) Write(buf []byte) (int, error) {
+func (w *byteReader) Read(buf []byte) (int, error) {
 
 	if w.count == 0xff {
 		w.done = true
@@ -30,18 +34,27 @@ func (w *byteWriter) Write(buf []byte) (int, error) {
 }
 
 func testGeneratorFactory(version Version) *Generator {
-	return &Generator{&testWriter{}, version}
+	return &Generator{&testReader{}, version}
 }
 
-func byteWriterGeneratorFactory(index int, version Version) (*Generator, *byteWriter) {
-	w := &byteWriter{index, false, 0}
+func byteReaderGeneratorFactory(index int, version Version) (*Generator, *byteReader) {
+	w := &byteReader{index, false, 0}
 	gen := &Generator{w, version}
 
 	return gen, w
 }
 
+func newTestConfiguration(version Version) Configuration {
+	return Configuration{
+		version,
+		[]net.Interface{},
+		func(bs []byte) (int, error) { return 0, nil },
+	}
+}
+
 func TestNewGeneratorInvalidVersion(t *testing.T) {
-	g, err := NewGenerator(-1)
+	config := newTestConfiguration(255)
+	g, err := NewGenerator(config)
 
 	if err != errUnknownVersion {
 		t.Errorf("Expected error %s with version %d; got %s", errUnknownVersion, -1, err)
@@ -52,8 +65,41 @@ func TestNewGeneratorInvalidVersion(t *testing.T) {
 	}
 }
 
+func TestNewGeneratorFailedVersion1(t *testing.T) {
+	expectedErr := errors.New("Failed to read random bytes")
+
+	config := Configuration{
+		1,
+		[]net.Interface{},
+		func(bs []byte) (int, error) { return 0, expectedErr },
+	}
+
+	g, err := NewGenerator(config)
+
+	if err != expectedErr {
+		t.Errorf("Expected faulted random source to return an error %s; got %s", expectedErr, err)
+	}
+
+	if g != nil {
+		t.Errorf("Expected a nil generator when an error is returned")
+	}
+}
+
+func TestNewGeneratorValidVersions(t *testing.T) {
+	versions := []Version{1}
+
+	for _, version := range versions {
+		config := newTestConfiguration(version)
+		_, err := NewGenerator(config)
+
+		if err != nil {
+			t.Errorf("Did not expect generator to return error for valid version; got %s", err)
+		}
+	}
+}
+
 func TestGeneratorVariant(t *testing.T) {
-	gen, w := byteWriterGeneratorFactory(8, 0)
+	gen, w := byteReaderGeneratorFactory(8, 0)
 
 	for !w.done {
 		uuid := gen.Generate()
@@ -72,7 +118,7 @@ func TestGeneratorVersion(t *testing.T) {
 
 	for _, version := range versions {
 
-		gen, w := byteWriterGeneratorFactory(6, version)
+		gen, w := byteReaderGeneratorFactory(6, version)
 
 		for !w.done {
 			uuid := gen.Generate()

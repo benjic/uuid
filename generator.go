@@ -9,20 +9,25 @@ var (
 	errUnknownVersion = errors.New("Unknown version")
 )
 
-// A Version identifies how the generator generates UUIDs
-type Version int8
-
 // A Generator is a factory for creating new UUIDs
 type Generator struct {
-	writer  io.Writer
+	reader  io.Reader
 	Version Version
 }
 
-// NewGenerator creates a new  UUID generator configured for the given version.
-func NewGenerator(version Version) (g *Generator, err error) {
+// NewGenerator creates a new  UUID generator which operates with the given
+// configuration.
+func NewGenerator(configuration Configuration) (g *Generator, err error) {
 
-	// TODO: Implement version based writers
-	switch version {
+	switch configuration.Version {
+	case 1:
+		reader, err := newV1Reader(configuration.Interfaces, configuration.RandomReader)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &Generator{reader, configuration.Version}, nil
 	}
 
 	return nil, errUnknownVersion
@@ -33,7 +38,7 @@ func NewGenerator(version Version) (g *Generator, err error) {
 func (g *Generator) Generate() UUID {
 	bs := make([]byte, 16)
 
-	g.writer.Write(bs)
+	g.reader.Read(bs)
 
 	// Apply flags
 	bs[6] = byte(g.Version<<4) | (0x0f & bs[6])
