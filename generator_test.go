@@ -86,7 +86,7 @@ func TestNewGeneratorFailedVersion1(t *testing.T) {
 }
 
 func TestNewGeneratorValidVersions(t *testing.T) {
-	versions := []Version{1}
+	versions := []Version{1, 4}
 
 	for _, version := range versions {
 		config := newTestConfiguration(version)

@@ -28,6 +28,8 @@ func NewGenerator(configuration Configuration) (g *Generator, err error) {
 		}
 
 		return &Generator{reader, configuration.Version}, nil
+	case 4:
+		return &Generator{v4Reader{configuration.RandomReader}, configuration.Version}, nil
 	}
 
 	return nil, errUnknownVersion
@@ -39,6 +41,7 @@ func (g *Generator) Generate() UUID {
 	bs := make([]byte, 16)
 
 	g.reader.Read(bs)
+	// TODO: communicate error
 
 	// Apply flags
 	bs[6] = byte(g.Version<<4) | (0x0f & bs[6])
