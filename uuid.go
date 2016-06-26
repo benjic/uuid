@@ -2,11 +2,35 @@
 // identifiers.
 package uuid
 
-import "fmt"
+import (
+	"crypto/rand"
+	"fmt"
+)
 
 const (
 	stringFormat = "%8x-%4x-%4x-%4x-%12x"
 )
+
+var defaultConfiguration Configuration = Configuration{
+	Version:      4,
+	RandomReader: rand.Read,
+}
+var defaultGenerator *Generator
+
+// Generate provides a Version 4 random UUID
+func Generate() UUID {
+	var err error
+
+	if defaultGenerator == nil {
+		defaultGenerator, err = NewGenerator(defaultConfiguration)
+
+		if err != nil {
+			panic(fmt.Sprintf("Unable to create default generator: %s", err))
+		}
+	}
+
+	return defaultGenerator.Generate()
+}
 
 // A UUID is a unique identifier.
 type UUID []byte

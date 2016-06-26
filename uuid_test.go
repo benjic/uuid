@@ -5,6 +5,34 @@ import (
 	"testing"
 )
 
+func resetDefaultGenerate() {
+	defaultGenerator = nil
+}
+
+func TestDefaultGenerator(t *testing.T) {
+	resetDefaultGenerate()
+
+	uuid := Generate()
+
+	if uuid.Version() != 4 {
+		t.Errorf("Expected a version 4 uuid from the default generator; got %d", uuid.Version())
+	}
+}
+
+func TestDefaultGeneratorPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Expected Generate to panic if defaultConfiguration is invalid")
+		}
+	}()
+
+	resetDefaultGenerate()
+	defaultConfiguration = Configuration{Version: 100}
+
+	// Attempt to generate with an invalided defualt configuration
+	Generate()
+}
+
 func TestUUIDString(t *testing.T) {
 	cases := []struct {
 		uuid     UUID
