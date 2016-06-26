@@ -8,13 +8,32 @@ uuid
 As you may of guessed this library provides [RFC4122][spec] compliant
 universally unique identifiers. 
 
+Example Usage
+--------------
+
+The `uuid` library provides a factory function for producing random version 4
+UUIDs. This allows you to get the identification you want with **no** setup.
+
+```go
+import (
+	"fmt"
+
+	"github.com/benjic/uuid"
+)
+
+func main() {
+	id := uuid.Generate()
+	fmt.Println(id)
+}
+```
+
 Goals
 -----
 
 - [ ] Fast
   - Benchmark should prove this library can supply a bunch of identifiers
     really, really quickly.
-- [ ] Simple
+- [x] Simple
   - If a consumer is fine with sane defaults consumption of library should be a
     simple factory function.
 - [ ] Configurable
