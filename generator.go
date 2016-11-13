@@ -15,7 +15,7 @@ type Generator struct {
 	Version Version
 }
 
-// NewGenerator creates a new  UUID generator which operates with the given
+// NewGenerator creates a new UUID generator which operates with the given
 // configuration.
 func NewGenerator(configuration Configuration) (g *Generator, err error) {
 
@@ -38,14 +38,14 @@ func NewGenerator(configuration Configuration) (g *Generator, err error) {
 // Generate produces a new UUID that reflects the configuration of the
 // generator.
 func (g *Generator) Generate() UUID {
-	bs := make([]byte, 16)
+	uuid := make([]byte, 16)
+	g.reader.Read(uuid)
+	applyFlags(uuid, g.Version)
+	return uuid
+}
 
-	g.reader.Read(bs)
-	// TODO: communicate error
-
+func applyFlags(uuid UUID, version Version) {
 	// Apply flags
-	bs[6] = byte(g.Version<<4) | (0x0f & bs[6])
-	bs[8] = 0xBF & (0x80 | bs[8])
-
-	return bs
+	uuid[6] = byte(version<<4) | (0x0f & uuid[6])
+	uuid[8] = 0xBF & (0x80 | uuid[8])
 }
