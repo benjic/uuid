@@ -28,7 +28,7 @@ func (w *byteReader) Read(buf []byte) (int, error) {
 	}
 
 	buf[w.index] = byte(w.count)
-	w.count += 1
+	w.count++
 
 	return 16, nil
 }
